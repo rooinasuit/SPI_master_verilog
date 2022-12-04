@@ -5,9 +5,9 @@ module master (
 
     // SPI data stash //
     input [7:0] MOSI_data,
-    output [7:0] MISO_data,
+    output reg [7:0] MISO_data,
     //
-    output [7:0] stash_ptr, 
+    output reg [7:0] stash_ptr, 
 
     // pure SPI part //
     input MISO,      // master in slave out
@@ -41,6 +41,10 @@ always @ (posedge CTRL_CLK) begin
         SCLK <= 1'b0;
         MOSI <= 1'b0;
         
+        MISO_buffer <= 8'd0;
+        MOSI_buffer <= 8'd0;
+
+        bit_cycle <= 2'd0;
         bit_counter <= 3'd7;
         state <= IDLE;
     end
@@ -51,36 +55,57 @@ always @ (posedge CTRL_CLK) begin
                     CS <= 1'b1;
                     SCLK <= 1'b0;
                     MOSI <= 1'b0;
+
+                    MISO_buffer <= 8'd0;
+                    MOSI_buffer <= 8'd0;
+
+                    bit_cycle <= 2'd0;
+                    bit_counter <= 3'd7;
                     if (!ENABLE) begin
                         state <= START;
                     end
                 end
                 START: begin
                     CS <= 1'b0;
-                    state <= CLK_STRETCH;
+                    state <= TRANSACTION;
                 end
                 TRANSACTION: begin
                     case (bit_cycle)
                         0: begin
-                            if (bit_counter <= 7)
+                            if (bit_counter == 7) begin
                                 MOSI_buffer <= MOSI_data;
-                            else 
+                                bit_cycle <= 1;
+                            end
+                            else
+                                bit_cycle <= 1;
                         end
                         1: begin
                             SCLK <= 1'b1;
                             if (posedge SCLK) begin
                                 MOSI <= MOSI_buffer[bit_counter];
+                                bit_cycle <= 2;
                             end
+                            else
+                                bit_cycle <= 2;
                         end
                         2: begin
-                            
-                        end
-
-                        3: begin
                             SCLK <= 0'b0;
+                            bit_counter <= bit_counter - 1'b1;
                             if (negedge SCLK) begin
                                 MISO_buffer <= {MISO_buffer[6:0], MISO};
-                            end 
+                                bit_cycle <= 3;
+                            end
+                            else
+                                bit_cycle <= 3;
+                        end
+                        3: begin
+                            if (bit_counter == 0) begin
+                                MISO_data <= MISO_buffer;
+                                stash_ptr <= stash_ptr + 1'b1;
+                                bit_cycle <= 0;
+                            end
+                            else
+                                bit_cycle <= 0;
                         end
                     endcase
                 end
@@ -88,27 +113,19 @@ always @ (posedge CTRL_CLK) begin
                     CS <= 1'b1;
                     SCLK <= 1'b0;
                     MOSI <= 1'b0;
-                    
+
+                    MISO_buffer <= 8'd0;
+                    MOSI_buffer <= 8'd0;
+
+                    bit_cycle <= 2'd0;
                     bit_counter <= 3'd7;
-                    state <= IDLE;
+                    if (!ENABLE) begin
+                        state <= START;
+                    end
                 end
             endcase
         end
     end
-end
-
-always @ (posedge CTRL_CLK) begin
-    if (!NRST) begin
-        MOSI_buffer <= 8'd0;
-        MISO_buffer <= 8'd0;
-        bit_counter <= 3'd0;
-    end
-    else begin
-        MOSI_buffer <= MOSI_data; // from rom to buffer
-        // 
-        MISO_data <= MISO_buffer; // from buffer to rom
-    end   
-
 end
 
 endmodule

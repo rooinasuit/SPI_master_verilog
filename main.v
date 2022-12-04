@@ -14,4 +14,17 @@ Gowin_rPLL clk_domains(
     .clkin(CLK) // input 27 MHz GLOBAL
 );
 
+master master(
+    .CTRL_CLK (CTRL_CLK),
+    .SCLK_PULSE (SCLK_PULSE),
+    .NRST (NRST),
+    .MOSI_data (MOSI_data),
+    .MISO_data (MOSI_data),
+    .stash_ptr (stash_ptr),
+    .MISO (MISO),
+    .CS (CS),
+    .SCLK (SCLK),
+    .MOSI (MOSI)
+);
+
 endmodule
