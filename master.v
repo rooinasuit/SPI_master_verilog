@@ -13,7 +13,7 @@ module master (
     input MISO,      // master in slave out
     //
     output reg CS,   // chip select to slave (stable low upon transmission for a single-slave case)
-    output reg SCLK, // SPI clock (the driven one) ~20MHz 
+    output reg SCLK, // SPI clock (the driven one)
     output reg MOSI  // master out slave in
 );
 
