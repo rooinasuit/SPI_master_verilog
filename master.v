@@ -1,4 +1,5 @@
 module master (
+    // synchronising domains //
     input CTRL_CLK,
     input SCLK_PULSE,
     input NRST,
@@ -103,6 +104,7 @@ always @ (posedge CTRL_CLK) begin
                                 MISO_data <= MISO_buffer;
                                 stash_ptr <= stash_ptr + 1'b1;
                                 bit_cycle <= 0;
+                                bit_counter <= 3'd7;
                             end
                             else
                                 bit_cycle <= 0;
@@ -125,6 +127,9 @@ always @ (posedge CTRL_CLK) begin
                 end
             endcase
         end
+        else if (!ENABLE)
+            CS <= 1'b1;
+            state <= IDLE;
     end
 end
 
