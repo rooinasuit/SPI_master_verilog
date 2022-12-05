@@ -3,13 +3,16 @@ module slave (
     input CTRL_CLK,
     input SCLK_PULSE,
     input NRST,
-
+    
+    input [7:0] SDO_data,
+    //
+    output [7:0] slave_data_ptr,
     // pure SPI part //
     input CS,   // chip select from master
     input SCLK, // SPI clock (the driven one)
     input SDI,  // slave data in (from master)
     //
-    output SDO  // slave data out (to master)
+    output reg SDO  // slave data out (to master)
 );
 
 // will probably need to summon a slave's rom submodule here 
@@ -54,7 +57,7 @@ always @ (posedge CTRL_CLK) begin
                     bit_cycle <= 2'd0;
                     bit_counter <= 4'd8;
                     state <= IDLE;
-                    if (negedge CS) begin
+                    if (!CS) begin
                         state <= TRANSACTION;
                     end
                 end
@@ -70,20 +73,12 @@ always @ (posedge CTRL_CLK) begin
                                 bit_cycle <= 1;
                         end
                         1: begin
-                            if (posedge SCLK) begin
-                                SDI_buffer <= {SDI_buffer[6:0], SDI};
-                                bit_cycle <= 2;
-                            end
-                            else
-                                bit_cycle <= 2;
+                            SDI_buffer <= {SDI_buffer[6:0], SDI};
+                            bit_cycle <= 2;
                         end
                         2: begin
-                            if (negedge SCLK) begin
-                                SDO <= SDO_buffer[bit_counter];
-                                bit_cycle <= 3;
-                            end
-                            else
-                                bit_cycle <= 3;
+                            SDO <= SDO_buffer[bit_counter];
+                            bit_cycle <= 3;
                         end
                         3: begin
                             if (bit_counter == 0) begin

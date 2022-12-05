@@ -3,6 +3,7 @@ module master (
     input CTRL_CLK,
     input SCLK_PULSE,
     input NRST,
+    input ENABLE,
 
     // SPI data stash //
     input [7:0] MOSI_data,
@@ -82,25 +83,16 @@ always @ (posedge CTRL_CLK) begin
                         end
                         1: begin
                             SCLK <= 1'b1;
-                            if (posedge SCLK) begin
-                                MOSI <= MOSI_buffer[bit_counter];
-                                bit_cycle <= 2;
-                            end
-                            else
-                                bit_cycle <= 2;
+                            MOSI <= MOSI_buffer[bit_counter];
+                            bit_cycle <= 2;
                         end
                         2: begin
-                            SCLK <= 0'b0;
+                            SCLK <= 1'b0;
                             bit_counter <= bit_counter - 1'b1;
-                            if (negedge SCLK) begin
-                                MISO_buffer <= {MISO_buffer[6:0], MISO};
-                                bit_cycle <= 3;
-                            end
-                            else
-                                bit_cycle <= 3;
+                            MISO_buffer <= {MISO_buffer[6:0], MISO};
                         end
                         3: begin
-                            if (bit_counter == 0) begin
+                            if (bit_counter == 3'd0) begin
                                 MISO_data <= MISO_buffer;
                                 stash_ptr <= stash_ptr + 1'b1;
                                 bit_cycle <= 0;
