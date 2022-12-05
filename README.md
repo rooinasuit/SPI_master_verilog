@@ -5,7 +5,7 @@ General purpose revolves around creating a fully functional master-slave communi
 ### What's done so far:
 
   1) master module (untested)
-  2) ..
+  2) slave module (untested)
 
 ### Possible future applications:
 
