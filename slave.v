@@ -6,7 +6,7 @@ module slave (
     
     input [7:0] SDO_data,
     //
-    output [7:0] slave_data_ptr,
+    output [7:0] slave_stash_ptr,
     // pure SPI part //
     input CS,   // chip select from master
     input SCLK, // SPI clock (the driven one)
@@ -82,7 +82,6 @@ always @ (posedge CTRL_CLK) begin
                         end
                         3: begin
                             if (bit_counter == 0) begin
-                                
                                 bit_cycle <= 0;
                                 bit_counter <= 4'd8;
                             end

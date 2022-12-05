@@ -5,11 +5,11 @@ module master (
     input NRST,
     input ENABLE,
 
-    // SPI data stash //
+    // SPI master data stash //
     input [7:0] MOSI_data,
     output reg [7:0] MISO_data,
     //
-    output reg [7:0] stash_ptr, 
+    output reg [7:0] master_stash_ptr, 
 
     // pure SPI part //
     input MISO,      // master in slave out
@@ -45,6 +45,7 @@ always @ (posedge CTRL_CLK) begin
         
         MISO_buffer <= 8'd0;
         MOSI_buffer <= 8'd0;
+        master_stash_ptr <= 8'd0;
 
         bit_cycle <= 2'd0;
         bit_counter <= 3'd7;
@@ -94,7 +95,7 @@ always @ (posedge CTRL_CLK) begin
                         3: begin
                             if (bit_counter == 3'd0) begin
                                 MISO_data <= MISO_buffer;
-                                stash_ptr <= stash_ptr + 1'b1;
+                                master_stash_ptr <= master_stash_ptr + 1'b1;
                                 bit_cycle <= 0;
                                 bit_counter <= 3'd7;
                             end

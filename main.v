@@ -16,10 +16,10 @@ wire MISO;
 
 wire [7:0] MOSI_data;
 wire [7:0] MISO_data;
-wire [7:0] stash_ptr;
+wire [7:0] master_stash_ptr;
 
 wire [7:0] SDO_data;
-wire [7:0] slava_data_ptr;
+wire [7:0] slave_stash_ptr;
 
 Gowin_rPLL clk_domains_full(
     .clkout(SCLK_PULSE), // output 20.25 Mhz from divider
@@ -34,7 +34,7 @@ master master(
     .ENABLE (ENABLE),
     .MOSI_data (MOSI_data),
     .MISO_data (MISO_data),
-    .stash_ptr (stash_ptr),
+    .master_stash_ptr (master_stash_ptr),
     .MISO (MISO),
     .CS (CS),
     .SCLK (SCLK),
@@ -46,7 +46,7 @@ slave slave1 (
     .SCLK_PULSE (SCLK_PULSE),
     .NRST (NRST),
     .SDO_data (SDO_data),
-    .slave_data_ptr (slave_data_ptr),
+    .slave_stash_ptr (slave_stash_ptr),
     .CS (CS),
     .SCLK (SCLK),
     .SDI (MOSI),
